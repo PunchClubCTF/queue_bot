@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  postgres:
+    build:
+      context: ./postgres
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data  # Maps host directory to PostgreSQL data directory
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: mydb
+    networks:
+      - app-network
+
+  python_app:
+    build:
+      context: ./python_app
+    depends_on:
+      - postgres
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: postgres
+      DB_USER: myuser
+      DB_PASSWORD: mypassword
+      DB_NAME: mydb
+    networks:
+      - app-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge
