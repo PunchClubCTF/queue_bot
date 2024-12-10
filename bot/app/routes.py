@@ -1,12 +1,13 @@
 from flask import Blueprint, render_template
 import json
-from .models import User
+from .models import *
 from . import db
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
+
     return render_template('index.html')
 
 @main.route('/profile')
