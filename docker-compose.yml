@@ -15,9 +15,9 @@ services:
     networks:
       - app-network
 
-  python_app:
+  app:
     build:
-      context: ./python_app
+      context: ./app
     depends_on:
       - postgres
     volumes:
