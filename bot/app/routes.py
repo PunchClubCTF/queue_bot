@@ -1,10 +1,16 @@
-from flask import Flask
+from flask import Blueprint, render_template
+from .models import User
+from . import db
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object('config')
+main = Blueprint('main', __name__)
 
-    from .routes import main
-    app.register_blueprint(main)
+@main.route('/')
+def index():
+    # Add a new user (for testing)
+    if not User.query.first():
+        new_user = User(username="testuser", email="testuser@example.com")
+        db.session.add(new_user)
+        db.session.commit()
 
-    return app
+    users = User.query.all()
+    return render_template('index.html', users=users)
