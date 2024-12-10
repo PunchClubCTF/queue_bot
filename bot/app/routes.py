@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template
+import json
 from .models import User
 from . import db
 
@@ -6,11 +7,38 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    # Add a new user (for testing)
-    if not User.query.first():
-        new_user = User(username="testuser", email="testuser@example.com")
-        db.session.add(new_user)
-        db.session.commit()
+    return render_template('index.html')
 
-    users = User.query.all()
-    return render_template('index.html', users=users)
+@main.route('/profile')
+def profile():
+    return render_template('index.html')
+
+@main.route('/get_queue')
+def profile():
+    return json.load()
+
+@main.route('/add_user_to_queue')
+def profile():
+    return render_template('index.html')
+
+@main.route('/delete_user_from_queue')
+def profile():
+    return render_template('index.html')
+
+
+
+admin = Blueprint('admin', __name__)
+
+@admin.route('/')
+def profile():
+    return render_template('index.html')
+
+@admin.route('/add_lab')
+def profile():
+    return render_template('index.html')
+
+@admin.route('/delete_lab')
+def profile():
+    return render_template('index.html')
+
+
