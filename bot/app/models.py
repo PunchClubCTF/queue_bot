@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from . import db
 
 class Student(db.Model):
@@ -10,6 +9,7 @@ class Student(db.Model):
     name = db.Column(db.String(100), nullable=False)
     surname = db.Column(db.String(100), nullable=False)
     group_id = db.Column(db.Integer, db.ForeignKey('groups.id'), nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)  # Added is_admin field
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 class Group(db.Model):
@@ -50,6 +50,7 @@ class LabQueue(db.Model):
     lab_id = db.Column(db.Integer, db.ForeignKey('labs.id'), nullable=False)
     subject = db.Column(db.String(50), nullable=False)
     queue_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+    priority = db.Column(db.Integer, default=0)  # Added priority field
 
     __table_args__ = (
         db.CheckConstraint(
@@ -57,3 +58,14 @@ class LabQueue(db.Model):
             name='check_student_or_group'
         ),
     )
+
+class AuditLog(db.Model):
+    __tablename__ = 'audit_logs'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('students.id'), nullable=False)
+    action = db.Column(db.String(255), nullable=False)
+    details = db.Column(db.Text, nullable=True)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+
+    user = db.relationship('Student', backref='audit_logs')  # Relationship for reverse lookup
