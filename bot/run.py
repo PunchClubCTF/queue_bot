@@ -1,3 +1,6 @@
+from dotenv import load_dotenv
+load_dotenv()  # Load environment variables from .env file
+
 from app import create_app
 from app.telegram_bot import run_bot
 import threading
