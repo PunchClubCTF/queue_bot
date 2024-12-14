@@ -2,7 +2,7 @@ import os
 import telebot
 from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from sqlalchemy.orm import sessionmaker
-from models import Student
+from .models import Student
 from . import db
 
 # Configuration
@@ -59,7 +59,7 @@ def complete_registration(message):
                 name=reg_data['first_name'],
                 surname=reg_data['last_name']
             )
-            
+
             db.session.add(new_student)
             db.session.commit()
             
