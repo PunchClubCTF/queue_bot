@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=PT+Mono&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        function setThemeClass() {
+            document.documentElement.className = Telegram.WebApp.colorScheme;
+        }
+
+        Telegram.WebApp.onEvent('themeChanged', setThemeClass);
+        setThemeClass();
+
+    </script>
+    <style>
+        .main {
+/*    		background-color: var(--tg-theme-bg-color);*/
+            display: flex;
+            flex-direction: column;
+            padding: 0px;
+            gap: 12px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            padding-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header__names {
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .header__name {
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .fullname {
+            color: var(--tg-theme-text-color);
+            text-align: left;
+            vertical-align: text-top;
+            font-size: 32px;
+            font-family: PT Mono;
+            font-weight: bold;
+            line-height: auto;
+            border-style: hidden;
+            outline: none;
+        }
+
+        .groupname {
+            color: var(--tg-theme-hint-color);
+            text-align:left;
+            vertical-align:text-top;
+            font-size:17px;
+            font-family:PT Mono;
+            border-style:hidden;
+            outline:none;
+        }
+
+        .header__buttons {
+            padding-left: 24px;
+            padding-right: 24px;
+            display: flex;
+            flex-direction: row;
+            align-items: flex-start;
+            justify-content: center;
+        }
+
+        .header__button {
+            height: 64px;
+            width: 90px;
+            align-self: flex-start;
+            border-radius: 12px;
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .header__button-box {
+            height: 32px;
+            width: 32px;
+            padding: 0px;
+            align-self: center;
+            border-style: hidden;
+            outline: none;
+            color: var(--tg-theme-link-color);
+        }
+
+        .header__button-name {
+            color: var(--tg-theme-link-color);
+            text-align: center;
+            vertical-align: text-middle;
+            font-size: 13px;
+            font-family: PT Mono;
+            font-weight: bold;
+            line-height: 16px;
+            border-style: hidden;
+            outline: none;
+        }
+
+        /* Основная структура очереди */
+        .queue {
+            background-color: var(--tg-theme-header-bg-color);
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            margin: 0 auto;
+            border-radius: 12px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            gap: 10px;
+        }
+
+        .queue__head {
+        /*	background-color: var(--tg-theme-header-bg-color);*/
+            padding-left: 5px;
+            padding-right: 5px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* Заголовок очереди */
+        .queue__header {
+            padding-left: 5px;
+            padding-right: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .header-name {
+            color: var(--tg-theme-text-color);
+            text-align: left;
+            vertical-align: text-top;
+            font-size: 13px;
+            font-family: PT Mono;
+            font-weight: bold;
+            align-self: flex-start;
+            border-style: hidden;
+            outline: none;
+            display: flex;
+        }
+
+        /* Заголовки для ЦГ и АИП */
+        .queue__subheaders {
+            padding: 0px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 25px;
+        }
+
+        .queue__subheader {
+            width: 70px;
+            align-self: flex-start;
+            padding: 0px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .subheader {
+            color: var(--tg-theme-text-color);
+            text-align: left;
+            vertical-align: text-top;
+            font-size: 13px;
+            font-family: PT Mono;
+            font-weight: bold;
+            align-self: flex-start;
+            border-style: hidden;
+            outline: none;
+            display: flex;
+        }
+
+        /* Секция с элементами очереди */
+        .queue__items {
+            background-color: var(--tg-theme-bg-color);
+            padding: 0px;
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+        }
+
+        .queue__item {
+            background-color: var(--tg-theme-header-bg-color);
+            padding-left: 5px;
+            padding-right: 5px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: nowrap;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
+
+        /* Левый блок с номером и именем */
+        .queue__item-info {
+            padding: 0px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .queue__item-number {
+            width: 10px;
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .number {
+            color: var(--tg-theme-text-color);
+            text-align: left;
+            vertical-align: text-top;
+            font-size: 13px;
+            font-family: PT Mono;
+            font-weight: bold;
+            align-self: flex-start;
+            border-style: hidden;
+            outline: none;
+            display: flex;
+        }
+
+        .queue__item-name {
+            padding-left: 10px;
+            padding-right: 10px;
+            padding-top: 5px;
+            padding-bottom: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+        }
+
+        .name {
+            color: var(--tg-theme-text-color);
+            text-align: left;
+            vertical-align: text-top;
+            font-size: 13px;
+            font-family: PT Mono;
+            align-self: flex-start;
+            border-style: hidden;
+            outline: none;
+            display: flex;
+        }
+
+        /* Правый блок с кружками для ЦГ и АИП */
+        .queue__item-status {
+            width: 50px;
+            padding-left: 10px;
+            padding-right: 10px;
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .queue__item-status-circle {
+            height: 7px;
+            width: 7px;
+            align-self: flex-start;
+            border-radius: 100%;
+            padding: 0px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 10px;
+            border: 0.5px solid var(--tg-theme-hint-color);
+        }
+
+        .queue__item-status-circle--solved {
+            background-color: #00FF00;
+        }
+
+        .queue__item-status-circle--solve {
+            background-color: #FFFF00;
+        }
+
+        .queue__item-status-wrapper {
+            padding: 0px;
+            display: flex;
+            flex-direction: row;
+            justify-content: flex-start;
+            align-items: center;
+            gap: 25px;
+        }
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="header">
+        <div class="header__names">
+            <div class="header__name fullname">Захаров Егор</div>
+            <div class="header__name groupname">Коршунов Иван</div>
+        </div>
+        <div class="header__buttons">
+            <div class="header__button">
+                <div class="header__button-box">
+                    <svg width="29" height="28" viewBox="0 0 29 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M14.75 28C22.482 28 28.75 21.732 28.75 14C28.75 6.26801 22.482 0 14.75 0C7.01801 0 0.75 6.26801 0.75 14C0.75 21.732 7.01801 28 14.75 28ZM15.3998 7.37729C15.23 7.20016 14.9953 7.1 14.75 7.1C14.5047 7.1 14.27 7.20016 14.1002 7.37729L9.10021 12.5947C8.75629 12.9535 8.76842 13.5233 9.12729 13.8672C9.48615 14.2111 10.0559 14.199 10.3998 13.8401L13.85 10.2399V20C13.85 20.4971 14.2529 20.9 14.75 20.9C15.2471 20.9 15.65 20.4971 15.65 20V10.2399L19.1002 13.8401C19.4441 14.199 20.0138 14.2111 20.3727 13.8672C20.7316 13.5233 20.7437 12.9535 20.3998 12.5947L15.3998 7.37729Z"
+                              fill="currentColor"/>
+                    </svg>
+
+                </div>
+                <div class="header__button-name">Зайти</div>
+            </div>
+            <div class="header__button">
+                <div class="header__button-box">
+                    <svg width="29" height="28" viewBox="0 0 29 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M28.25 14C28.25 21.732 21.982 28 14.25 28C6.51801 28 0.25 21.732 0.25 14C0.25 6.26801 6.51801 0 14.25 0C21.982 0 28.25 6.26801 28.25 14ZM14.8998 20.6227C14.73 20.7998 14.4953 20.9 14.25 20.9C14.0047 20.9 13.77 20.7998 13.6002 20.6227L8.6002 15.4053C8.25629 15.0465 8.26841 14.4767 8.62728 14.1328C8.98615 13.7889 9.55587 13.801 9.89978 14.1599L13.35 17.7601V8C13.35 7.50294 13.7529 7.1 14.25 7.1C14.747 7.1 15.15 7.50294 15.15 8V17.7601L18.6002 14.1599C18.9441 13.801 19.5138 13.7889 19.8727 14.1328C20.2316 14.4767 20.2437 15.0465 19.8998 15.4053L14.8998 20.6227Z"
+                              fill="currentColor"/>
+                    </svg>
+                </div>
+                <div class="header__button-name">Выйти</div>
+            </div>
+            <div class="header__button">
+                <div class="header__button-box">
+                    <svg width="29" height="28" viewBox="0 0 29 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M14.75 28C22.482 28 28.75 21.732 28.75 14C28.75 6.26801 22.482 0 14.75 0C7.01801 0 0.75 6.26801 0.75 14C0.75 21.732 7.01801 28 14.75 28ZM15.75 8C15.75 7.44771 15.3023 7 14.75 7C14.1977 7 13.75 7.44771 13.75 8V13H8.75C8.19771 13 7.75 13.4477 7.75 14C7.75 14.5523 8.19771 15 8.75 15H13.75V20C13.75 20.5523 14.1977 21 14.75 21C15.3023 21 15.75 20.5523 15.75 20V15H20.75C21.3023 15 21.75 14.5523 21.75 14C21.75 13.4477 21.3023 13 20.75 13H15.75V8Z"
+                              fill="currentColor"/>
+                    </svg>
+
+                </div>
+                <div class="header__button-name">Группа</div>
+            </div>
+            <div class="header__button">
+                <div class="header__button-box">
+                    <svg width="29" height="28" viewBox="0 0 29 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" clip-rule="evenodd"
+                              d="M28.25 14C28.25 21.732 21.982 28 14.25 28C6.51801 28 0.25 21.732 0.25 14C0.25 6.26801 6.51801 0 14.25 0C21.982 0 28.25 6.26801 28.25 14ZM11.1395 7.70108C11.5267 7.30725 11.5213 6.67411 11.1275 6.28692C10.7336 5.89972 10.1005 5.9051 9.71329 6.29892L6.53692 9.52969C6.15436 9.9188 6.15436 10.5427 6.53692 10.9318L9.71329 14.1626C10.1005 14.5564 10.7336 14.5618 11.1275 14.1746C11.5213 13.7874 11.5267 13.1543 11.1395 12.7605L9.63552 11.2308L16.25 11.2308C16.8023 11.2308 17.25 10.7831 17.25 10.2308C17.25 9.67848 16.8023 9.23077 16.25 9.23077H9.63552L11.1395 7.70108ZM18.7867 13.8374C18.3995 13.4436 17.7664 13.4382 17.3725 13.8254C16.9787 14.2126 16.9733 14.8457 17.3605 15.2395L18.8645 16.7692L12.25 16.7692C11.6977 16.7692 11.25 17.2169 11.25 17.7692C11.25 18.3215 11.6977 18.7692 12.25 18.7692L18.8645 18.7692L17.3605 20.2989C16.9733 20.6927 16.9787 21.3259 17.3725 21.7131C17.7664 22.1003 18.3995 22.0949 18.7867 21.7011L21.9631 18.4703C22.3456 18.0812 22.3456 17.4573 21.9631 17.0682L18.7867 13.8374Z"
+                              fill="currentColor"/>
+                    </svg>
+
+                </div>
+                <div class="header__button-name">Поменять</div>
+            </div>
+        </div>
+    </div>
+    <div class="queue">
+        <div class="queue__head">
+            <div class="queue__header header-name">Очередь</div>
+            <div class="queue__subheaders">
+                <div class="queue__subheader subheader">ЦГ</div>
+                <div class="queue__subheader subheader">АИП</div>
+            </div>
+        </div>
+        <div class="queue__items">
+            {% for queue_item in queue_items %}
+            <div class="queue__item">
+                <div class="queue__item-info">
+                    <div class="queue__item-number number">{{ queue_item.number }}</div>
+                    <div class="queue__item-name name">{{ queue_item.name }}</div>
+                </div>
+                <div class="queue__item-status-wrapper">
+                    {% for status_group in queue_item.status_groups %}
+                    <div class="queue__item-status">
+                        {% for status in status_group %}
+                        <div class="queue__item-status-circle {{ status.class }}"></div>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+</body>
+</html>
