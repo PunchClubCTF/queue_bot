@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, jsonify
+from os import name
+from flask import Blueprint, render_template, request
 from .models import *
 from . import db
 
@@ -10,6 +11,13 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
+    user = request.args.get('user')
+    
+    # Get all query parameters (if needed)
+    all_params = request.args
+    
+    print(f"Hello, {user}!, {all_params}" if user else "Hello, World!")
+
     students = get_students()
     labs = get_labs()
 
@@ -60,3 +68,4 @@ def get_labs():
 def get_lab_by_id(lab_id):
     lab = Lab.query.get(lab_id)
     return lab
+
