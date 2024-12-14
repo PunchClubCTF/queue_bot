@@ -1,7 +1,10 @@
 from flask import Blueprint, render_template, jsonify
-from Circle import Circle
 from .models import *
 from . import db
+
+class Circle:
+    Solved = 'queue__item-status-circle--solved'
+    Not_solved = 'queue__item-status-circle--solve'
 
 main = Blueprint('main', __name__)
 
