@@ -3,7 +3,8 @@ import telebot
 from telebot.types import ReplyKeyboardMarkup, ReplyKeyboardRemove
 from sqlalchemy.orm import sessionmaker
 from .models import Student
-from . import db
+from . import db, create_app
+from flask import current_app
 
 # Configuration
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -48,32 +49,34 @@ def complete_registration(message):
     reg_data = user_registration_state[message.chat.id]
     
     # Create database session within app context
-    try:
-        # Check if student already exists
-        existing_student = Student.query.filter_by(telegram_id=reg_data['telegram_id']).first()
-        
-        if not existing_student:
-            # Create a new student record
-            new_student = Student(
-                telegram_id=reg_data['telegram_id'],
-                name=reg_data['first_name'],
-                surname=reg_data['last_name']
-            )
-
-            db.session.add(new_student)
-            db.session.commit()
+    app = create_app()
+    with app.app_context():
+        try:
+            # Check if student already exists
+            existing_student = Student.query.filter_by(telegram_id=reg_data['telegram_id']).first()
             
-            # Send confirmation message
-            bot.reply_to(message, f"Регистрация прошла успешно, {reg_data['first_name']} {reg_data['last_name']}.")
-        else:
-            # Student already exists
-            bot.reply_to(message, "Вы уже зарегистрированы. Пожалуйста, используйте команду /start.")
-    
-    except Exception as e:
-        bot.reply_to(message, f"Произошла ошибка во время регистрации: {str(e)}")
-    
-    # Clear registration state
-    del user_registration_state[message.chat.id]
+            if not existing_student:
+                # Create a new student record
+                new_student = Student(
+                    telegram_id=reg_data['telegram_id'],
+                    name=reg_data['first_name'],
+                    surname=reg_data['last_name']
+                )
+                db.session.add(new_student)
+                db.session.commit()
+                
+                # Send confirmation message
+                bot.reply_to(message, f"Регистрация прошла успешно, {reg_data['first_name']} {reg_data['last_name']}.")
+            else:
+                # Student already exists
+                bot.reply_to(message, "Вы уже зарегистрированы. Пожалуйста, используйте команду /start.")
+        
+        except Exception as e:
+            bot.reply_to(message, f"Произошла ошибка во время регистрации: {str(e)}")
+        
+        # Clear registration state
+        del user_registration_state[message.chat.id]
+
 
 def run_bot():
     print("Starting Telegram Bot...")
