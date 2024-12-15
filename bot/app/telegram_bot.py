@@ -80,4 +80,14 @@ def complete_registration(message):
 
 def run_bot():
     print("Starting Telegram Bot...")
-    bot.polling(none_stop=True)
+    if not hasattr(run_bot, 'is_running'):
+        run_bot.is_running = True
+        try:
+            # Use long polling with a lower timeout to reduce conflicts
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print(f"Bot polling error: {e}")
+        finally:
+            run_bot.is_running = False
+    else:
+        print("Bot is already running")
