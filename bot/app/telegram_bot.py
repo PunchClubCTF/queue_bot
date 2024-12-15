@@ -84,7 +84,7 @@ def run_bot():
         run_bot.is_running = True
         try:
             # Use long polling with a lower timeout to reduce conflicts
-            bot.polling(none_stop=True)
+            bot.polling(none_stop=True, interval=1, timeout=10)
         except Exception as e:
             print(f"Bot polling error: {e}")
         finally:
