@@ -81,6 +81,3 @@ def complete_registration(message):
 def run_bot():
     print("Starting Telegram Bot...")
     bot.polling(none_stop=True)
-
-if __name__ == '__main__':
-    run_bot()
