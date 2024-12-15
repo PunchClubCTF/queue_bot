@@ -11,12 +11,6 @@ main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
-    user = request.args.get('user')
-    
-    # Get all query parameters (if needed)
-    all_params = request.args
-    
-    return (f"Hello, {user}!, {all_params}" if user else "Hello, World!")
 
     students = get_students()
     labs = get_labs()
