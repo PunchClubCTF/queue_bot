@@ -7,6 +7,8 @@ import threading
 import signal
 import sys
 
+app = create_app()
+
 def signal_handler(sig, frame):
     print('Stopping application...')
     sys.exit(0)
