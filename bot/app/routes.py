@@ -16,7 +16,7 @@ def index():
     # Get all query parameters (if needed)
     all_params = request.args
     
-    print(f"Hello, {user}!, {all_params}" if user else "Hello, World!")
+    return (f"Hello, {user}!, {all_params}" if user else "Hello, World!")
 
     students = get_students()
     labs = get_labs()
