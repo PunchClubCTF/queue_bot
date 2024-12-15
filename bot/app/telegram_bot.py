@@ -5,6 +5,10 @@ from sqlalchemy.orm import sessionmaker
 from .models import Student
 from . import db, create_app
 from flask import current_app
+import sys
+import fcntl
+import threading
+import time
 
 # Configuration
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -79,15 +83,46 @@ def complete_registration(message):
 
 
 def run_bot():
-    print("Starting Telegram Bot...")
-    if not hasattr(run_bot, 'is_running'):
-        run_bot.is_running = True
+    # Create a lock file to prevent multiple instances
+    lock_file_path = '/tmp/telegram_bot.lock'
+    
+    try:
+        # Open the lock file with exclusive write access
+        lock_file = open(lock_file_path, 'w')
+        
         try:
-            # Use long polling with a lower timeout to reduce conflicts
-            bot.polling(none_stop=True, interval=1, timeout=10)
+            # Try to acquire an exclusive, non-blocking lock
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            print("Another instance of the bot is already running. Exiting.")
+            sys.exit(1)
+        
+        print("Starting Telegram Bot...")
+        
+        try:
+            # Implement a retry mechanism with exponential backoff
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    bot.polling(none_stop=True, interval=1, timeout=10)
+                    break
+                except Exception as e:
+                    print(f"Bot polling error (attempt {attempt + 1}/{max_retries}): {e}")
+                    if attempt < max_retries - 1:
+                        # Exponential backoff
+                        time.sleep(2 ** attempt)
+                    else:
+                        raise
+        
         except Exception as e:
-            print(f"Bot polling error: {e}")
+            print(f"Unrecoverable bot error: {e}")
+        
         finally:
-            run_bot.is_running = False
-    else:
-        print("Bot is already running")
+            # Release the lock
+            fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            lock_file.close()
+            os.unlink(lock_file_path)
+    
+    except Exception as e:
+        print(f"Error managing bot lock: {e}")
+        sys.exit(1)
